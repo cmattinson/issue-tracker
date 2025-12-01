@@ -18,7 +18,8 @@ services:
         - action: rebuild
           path: package.json
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   db:
     image: postgres:15-alpine
     restart: always
