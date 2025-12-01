@@ -1,6 +1,6 @@
 {
-  "id": "5dbad239-5c27-4485-adee-27f563bec5e9",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "9d0c7dc9-43ce-413b-b052-b651746c6be6",
+  "prevId": "6a1acc03-ec75-4762-9d64-7d757f66bff8",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -65,6 +65,50 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.issue_priorities": {
+      "name": "issue_priorities",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "issue_priorities_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "issue_priorities_name_unique": {
+          "name": "issue_priorities_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.issue_types": {
       "name": "issue_types",
       "schema": "",
@@ -96,7 +140,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "issue_types_name_unique": {
+          "name": "issue_types_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -122,8 +174,8 @@
             "cycle": false
           }
         },
-        "typeId": {
-          "name": "typeId",
+        "issueTypeId": {
+          "name": "issueTypeId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -168,12 +220,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "issues_typeId_issue_types_id_fk": {
-          "name": "issues_typeId_issue_types_id_fk",
+        "issues_issueTypeId_issue_types_id_fk": {
+          "name": "issues_issueTypeId_issue_types_id_fk",
           "tableFrom": "issues",
           "tableTo": "issue_types",
           "columnsFrom": [
-            "typeId"
+            "issueTypeId"
           ],
           "columnsTo": [
             "id"

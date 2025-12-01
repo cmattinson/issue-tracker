@@ -1,0 +1,1 @@
+ALTER TABLE "issue_types" ADD CONSTRAINT "issue_types_name_unique" UNIQUE("name");

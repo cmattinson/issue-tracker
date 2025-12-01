@@ -1,19 +1,29 @@
 import { integer, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 
 export const usersTable = pgTable("users", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	createdAt: timestamp().defaultNow(),
+	updatedAt: timestamp(),
 	name: varchar({ length: 255 }).notNull(),
 	age: integer().notNull(),
 	email: varchar({ length: 255 }).notNull().unique(),
-	createdAt: timestamp().defaultNow(),
-	updatedAt: timestamp(),
 });
 
-export const insertUsersSchema = createInsertSchema(usersTable);
+export const issueTypesTable = pgTable("issue_types", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	name: varchar({ length: 255 }).notNull().unique(),
+});
+
+export const issuePrioritiesTable = pgTable("issue_priorities", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	name: varchar({ length: 255 }).notNull().unique(),
+});
 
 export const issuesTable = pgTable("issues", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	issueTypeId: integer()
+		.notNull()
+		.references(() => issueTypesTable.id),
 	title: varchar({ length: 255 }).notNull(),
 	description: varchar({ length: 255 }).notNull(),
 	status: varchar({ length: 255 }).notNull(),
@@ -24,8 +34,6 @@ export const issuesTable = pgTable("issues", {
 	updatedAt: timestamp(),
 });
 
-export const insertIssuesSchema = createInsertSchema(issuesTable);
-
 export const commentsTable = pgTable("comments", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	issueId: integer().notNull(),
@@ -34,5 +42,3 @@ export const commentsTable = pgTable("comments", {
 	createdAt: timestamp().defaultNow(),
 	updatedAt: timestamp(),
 });
-
-export const insertCommentsSchema = createInsertSchema(commentsTable);

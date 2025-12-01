@@ -1,6 +1,6 @@
 {
-  "id": "5dbad239-5c27-4485-adee-27f563bec5e9",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "6a1acc03-ec75-4762-9d64-7d757f66bff8",
+  "prevId": "11c71693-9888-483d-aa34-bb2eda4788b2",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -96,7 +96,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "issue_types_name_unique": {
+          "name": "issue_types_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -122,8 +130,8 @@
             "cycle": false
           }
         },
-        "typeId": {
-          "name": "typeId",
+        "issueTypeId": {
+          "name": "issueTypeId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -168,12 +176,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "issues_typeId_issue_types_id_fk": {
-          "name": "issues_typeId_issue_types_id_fk",
+        "issues_issueTypeId_issue_types_id_fk": {
+          "name": "issues_issueTypeId_issue_types_id_fk",
           "tableFrom": "issues",
           "tableTo": "issue_types",
           "columnsFrom": [
-            "typeId"
+            "issueTypeId"
           ],
           "columnsTo": [
             "id"

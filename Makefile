@@ -1,4 +1,4 @@
 build:
-	podman compose --env-file .env up --build
+	docker compose --env-file .env up --build
 dev:
-	podman compose --env-file .env up --watch
+	docker compose --env-file .env up --watch
