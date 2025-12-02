@@ -1,23 +1,21 @@
-import { status } from "elysia";
-import { db } from "../../index.ts";
-import { issuesTable } from "../../db/schema";
-import { eq } from "drizzle-orm";
+import type { NormalizedIssue, SearchIssue } from "./dto";
+import { IssueRepository } from "./repository.ts";
 import type { InsertIssue, SelectIssue } from "./schema";
 
-export const IssueService = {
-	async create(data: InsertIssue): Promise<SelectIssue> {
-		const [result] = await db.insert(issuesTable).values(data).returning();
-		return result as SelectIssue;
-	},
-	async find(id: number): Promise<SelectIssue | null> {
-		const [row] = await db
-			.select()
-			.from(issuesTable)
-			.where(eq(issuesTable.id, id));
+export abstract class IssueService {
+	static async create(data: InsertIssue): Promise<SelectIssue> {
+		return await IssueRepository.create(data);
+	}
 
-		return row ?? null;
-	},
-	async list(): Promise<SelectIssue[]> {
-		return await db.select().from(issuesTable);
-	},
-};
+	static async find(id: string): Promise<SelectIssue | null> {
+		return await IssueRepository.find(id);
+	}
+
+	static async list(query: SearchIssue): Promise<SelectIssue[]> {
+		return await IssueRepository.list(query);
+	}
+
+	static async normalizedIssues(): Promise<NormalizedIssue[]> {
+		return await IssueRepository.normalizedIssues();
+	}
+}

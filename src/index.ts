@@ -1,12 +1,19 @@
-import index from "./index.html";
+import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
 import "dotenv/config";
+import { fromTypes, openapi } from "@elysiajs/openapi";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { issuePrioritiesTable, issueTypesTable, usersTable } from "./db/schema";
-import { openapi, fromTypes } from "@elysiajs/openapi";
-import { user } from "./modules/user";
-import { issue } from "./modules/issue";
 import { Pool } from "pg";
+import {
+	issuePrioritiesTable,
+	issueStatusTable,
+	issuesTable,
+	issueTypesTable,
+	usersTable,
+} from "./db/schema";
+import { issue } from "./modules/issue";
+import { issueType } from "./modules/issue-type";
+import { user } from "./modules/user";
 
 if (process.env.DATABASE_URL === undefined) {
 	console.error("DATABASE_URL is not set");
@@ -24,77 +31,76 @@ export const pool = new Pool({
 
 export const db = drizzle(pool);
 
-async function seed() {
-	// Users
+await (async function seed() {
 	await Promise.all([
 		db
 			.insert(usersTable)
 			.values({ name: "Chris", age: 29, email: "chris@example.com" })
 			.onConflictDoNothing({ target: usersTable.email }),
+		db
+			.insert(issuePrioritiesTable)
+			.values([
+				{ name: "Low" },
+				{ name: "Medium" },
+				{ name: "High" },
+				{ name: "Critical" },
+			])
+			.onConflictDoNothing({ target: issuePrioritiesTable.name }),
+		db
+			.insert(issueTypesTable)
+			.values([
+				{ name: "Bug" },
+				{ name: "Feature" },
+				{ name: "Improvement" },
+				{ name: "Question" },
+				{ name: "Other" },
+				{ name: "Duplicate" },
+				{ name: "Invalid" },
+				{ name: "Won't Fix" },
+			])
+			.onConflictDoNothing({ target: issueTypesTable.name }),
+		db
+			.insert(issueStatusTable)
+			.values([
+				{ name: "Open" },
+				{ name: "In Progress" },
+				{ name: "Resolved" },
+				{ name: "Closed" },
+			])
+			.onConflictDoNothing({ target: issueStatusTable.name }),
 	]);
-
-	await Promise.all([
-		db
-			.insert(issuePrioritiesTable)
-			.values({ name: "Low" })
-			.onConflictDoNothing({ target: issuePrioritiesTable.name }),
-		db
-			.insert(issuePrioritiesTable)
-			.values({ name: "Medium" })
-			.onConflictDoNothing({ target: issuePrioritiesTable.name }),
-		db
-			.insert(issuePrioritiesTable)
-			.values({ name: "High" })
-			.onConflictDoNothing({ target: issuePrioritiesTable.name }),
-		db
-			.insert(issuePrioritiesTable)
-			.values({ name: "Critical" })
-			.onConflictDoNothing({ target: issuePrioritiesTable.name }),
+	await db.insert(issuesTable).values([
+		{
+			title: "Test issue",
+			description: "This is a test issue",
+			issueStatusId: 1,
+			issueTypeId: 1,
+			priorityId: 1,
+		},
+		{
+			title: "Another test issue",
+			description: "This is another test issue",
+			issueStatusId: 1,
+			issueTypeId: 1,
+			priorityId: 1,
+		},
 	]);
+})();
 
-	// Issue Types
-	await Promise.all([
-		db
-			.insert(issueTypesTable)
-			.values({ name: "Bug" })
-			.onConflictDoNothing({ target: issueTypesTable.name }),
-		db
-			.insert(issueTypesTable)
-			.values({ name: "Feature" })
-			.onConflictDoNothing({ target: issueTypesTable.name }),
-		db
-			.insert(issueTypesTable)
-			.values({ name: "Improvement" })
-			.onConflictDoNothing({ target: issueTypesTable.name }),
-		db
-			.insert(issueTypesTable)
-			.values({ name: "Question" })
-			.onConflictDoNothing({ target: issueTypesTable.name }),
-		db
-			.insert(issueTypesTable)
-			.values({ name: "Other" })
-			.onConflictDoNothing({ target: issueTypesTable.name }),
-		db
-			.insert(issueTypesTable)
-			.values({ name: "Duplicate" })
-			.onConflictDoNothing({ target: issueTypesTable.name }),
-		db
-			.insert(issueTypesTable)
-			.values({ name: "Invalid" })
-			.onConflictDoNothing({ target: issueTypesTable.name }),
-		db
-			.insert(issueTypesTable)
-			.values({ name: "Won't Fix" })
-			.onConflictDoNothing({ target: issueTypesTable.name }),
-	]);
-}
+const frontend = new Elysia().use(await staticPlugin({ prefix: "/" }));
 
-await seed();
-
-new Elysia({ prefix: "/api" })
-	.use(openapi({ references: fromTypes(), path: "/docs" }))
+const api = new Elysia({ prefix: "/api/v1" })
+	.use(
+		openapi({
+			references: fromTypes(),
+			path: "/docs",
+			documentation: { info: { title: "Issue Tracker API", version: "1.0.0" } },
+		}),
+	)
 	.use(user)
 	.use(issue)
-	.listen(process.env.PORT);
+	.use(issueType);
+
+new Elysia().use(frontend).use(api).listen(process.env.PORT);
 
 console.log(`🚀 Server running at ${process.env.PORT}`);

@@ -9,6 +9,10 @@ export const user = new Elysia({ prefix: "/users" })
 		{
 			body: InsertUserSchema,
 			response: { 201: SelectUserSchema },
+			detail: {
+				summary: "Create a new user",
+				tags: ["Users"],
+			},
 		},
 	)
 	.get(
@@ -20,8 +24,16 @@ export const user = new Elysia({ prefix: "/users" })
 		{
 			params: t.Object({ id: t.Integer() }),
 			response: { 200: SelectUserSchema, 404: t.String() },
+			detail: {
+				summary: "Find a user by their ID",
+				tags: ["Users"],
+			},
 		},
 	)
 	.get("/", async () => await UserService.list(), {
 		response: t.Array(SelectUserSchema),
+		detail: {
+			summary: "List all users",
+			tags: ["Users"],
+		},
 	});

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { usersTable } from "../../db/schema";
-import { db } from "../../index.ts";
+import { usersTable } from "@/db/schema";
+import { db } from "@/index.ts";
 import type { InsertUser, SelectUser } from "./schema";
 
 export const UserService = {

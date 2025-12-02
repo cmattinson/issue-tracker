@@ -1,6 +1,6 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import { t } from "elysia";
-import { usersTable } from "../../db/schema";
+import { usersTable } from "@/db/schema";
 
 const BaseUserSchema = createInsertSchema(usersTable, {
 	age: t.Number({

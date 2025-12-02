@@ -1,4 +1,6 @@
 import type { BunRequest } from "bun";
+import type { InferSelectModel } from "drizzle-orm";
+import type { PgColumn, PgDatabase } from "drizzle-orm/pg-core";
 import type { z } from "zod";
 
 enum DatabaseError {
