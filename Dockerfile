@@ -1,5 +1,7 @@
 FROM oven/bun:1-alpine
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 WORKDIR /usr/src/app
 
 COPY package.json bun.lock ./
@@ -8,6 +10,13 @@ RUN bun install
 
 COPY . .
 
+# Change ownership of the app directory
+RUN chown -R appuser:appgroup /usr/src/app
+
+# Switch to the non-root user
+USER appuser
+
 EXPOSE 3000 6499
 
 CMD ["bun", "run", "docker:start"]
+

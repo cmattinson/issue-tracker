@@ -8,7 +8,8 @@
 		"start": "NODE_ENV=production bun src/index.ts",
 		"build": "bun run build.ts",
 		"db:push": "bunx drizzle-kit push",
-		"docker:start": "bun run db:push && bun run dev"
+		"db:seed": "bun src/seed.ts",
+		"docker:start": "bunx drizzle-kit push --force && bun run db:seed && bun run dev"
 	},
 	"dependencies": {
 		"@elysiajs/openapi": "^1.4.11",

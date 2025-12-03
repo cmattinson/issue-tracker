@@ -4,15 +4,10 @@ import "dotenv/config";
 import { fromTypes, openapi } from "@elysiajs/openapi";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import {
-	issuePrioritiesTable,
-	issueStatusTable,
-	issuesTable,
-	issueTypesTable,
-	usersTable,
-} from "./db/schema";
+import { comment } from "./modules/comment";
 import { issue } from "./modules/issue";
 import { issueType } from "./modules/issue-type";
+import { project } from "./modules/project";
 import { user } from "./modules/user";
 
 if (process.env.DATABASE_URL === undefined) {
@@ -31,61 +26,7 @@ export const pool = new Pool({
 
 export const db = drizzle(pool);
 
-await (async function seed() {
-	await Promise.all([
-		db
-			.insert(usersTable)
-			.values({ name: "Chris", age: 29, email: "chris@example.com" })
-			.onConflictDoNothing({ target: usersTable.email }),
-		db
-			.insert(issuePrioritiesTable)
-			.values([
-				{ name: "Low" },
-				{ name: "Medium" },
-				{ name: "High" },
-				{ name: "Critical" },
-			])
-			.onConflictDoNothing({ target: issuePrioritiesTable.name }),
-		db
-			.insert(issueTypesTable)
-			.values([
-				{ name: "Bug" },
-				{ name: "Feature" },
-				{ name: "Improvement" },
-				{ name: "Question" },
-				{ name: "Other" },
-				{ name: "Duplicate" },
-				{ name: "Invalid" },
-				{ name: "Won't Fix" },
-			])
-			.onConflictDoNothing({ target: issueTypesTable.name }),
-		db
-			.insert(issueStatusTable)
-			.values([
-				{ name: "Open" },
-				{ name: "In Progress" },
-				{ name: "Resolved" },
-				{ name: "Closed" },
-			])
-			.onConflictDoNothing({ target: issueStatusTable.name }),
-	]);
-	await db.insert(issuesTable).values([
-		{
-			title: "Test issue",
-			description: "This is a test issue",
-			issueStatusId: 1,
-			issueTypeId: 1,
-			priorityId: 1,
-		},
-		{
-			title: "Another test issue",
-			description: "This is another test issue",
-			issueStatusId: 1,
-			issueTypeId: 1,
-			priorityId: 1,
-		},
-	]);
-})();
+await import("./seed.ts");
 
 const frontend = new Elysia().use(await staticPlugin({ prefix: "/" }));
 
@@ -97,9 +38,11 @@ const api = new Elysia({ prefix: "/api/v1" })
 			documentation: { info: { title: "Issue Tracker API", version: "1.0.0" } },
 		}),
 	)
+	.use(project)
 	.use(user)
 	.use(issue)
-	.use(issueType);
+	.use(issueType)
+	.use(comment);
 
 new Elysia().use(frontend).use(api).listen(process.env.PORT);
 

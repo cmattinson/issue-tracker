@@ -1,0 +1,14 @@
+{
+	"$schema": "https://raw.githubusercontent.com/mfussenegger/dapconfig-schema/master/dapconfig-schema.json",
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "bun",
+			"request": "attach",
+			"name": "Attach to Bun in Podman",
+			"url": "ws://localhost:6499/debug",
+			"localRoot": "${workspaceFolder}/src",
+			"remoteRoot": "/usr/src/app/src"
+		}
+	]
+}

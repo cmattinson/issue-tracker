@@ -1,0 +1,11 @@
+[
+    {
+        "label": "Podman: Attach to Bun",
+        "adapter": "TypeScript",
+        "type": "bun",
+        "request": "attach",
+        "url": "ws://0.0.0.0:6499/debug",
+        "localRoot": "${workspaceFolder}",
+        "remoteRoot": "/usr/src/app"
+    }
+]
