@@ -1,8 +1,16 @@
 import { Elysia, status, t } from "elysia";
+import { SelectIssueSchema } from "../issue/schema";
 import { type InsertUser, InsertUserSchema, SelectUserSchema } from "./schema";
 import { UserService } from "./service";
 
 export const user = new Elysia({ prefix: "/users" })
+	.get("/", async () => await UserService.list(), {
+		response: t.Array(SelectUserSchema),
+		detail: {
+			summary: "List all users",
+			tags: ["Users"],
+		},
+	})
 	.post(
 		"/",
 		async ({ body }: { body: InsertUser }) => await UserService.create(body),
@@ -18,7 +26,7 @@ export const user = new Elysia({ prefix: "/users" })
 	.get(
 		"/:id",
 		async ({ params }: { params: { id: number } }) => {
-			const user = await UserService.find(Number(params.id));
+			const user = await UserService.find(params.id);
 			return user ?? status(404, "User not found");
 		},
 		{
@@ -30,10 +38,16 @@ export const user = new Elysia({ prefix: "/users" })
 			},
 		},
 	)
-	.get("/", async () => await UserService.list(), {
-		response: t.Array(SelectUserSchema),
-		detail: {
-			summary: "List all users",
-			tags: ["Users"],
+	.get(
+		"/:id/issues",
+		async ({ params }: { params: { id: number } }) =>
+			await UserService.getIssues(params.id),
+		{
+			params: t.Object({ id: t.Integer() }),
+			response: t.Array(SelectIssueSchema),
+			detail: {
+				summary: "List all issues assigned to a user",
+				tags: ["Users"],
+			},
 		},
-	});
+	);

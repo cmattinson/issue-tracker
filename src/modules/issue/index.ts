@@ -27,9 +27,10 @@ export const issue = new Elysia({ prefix: "/issues" })
 			tags: ["Issues"],
 		},
 	})
+	.get("/assigned", async () => await IssueService.assignedIssues())
 	.get(
 		"/:id",
-		async ({ params, query }) => {
+		async ({ params }) => {
 			return await IssueService.find(params.id);
 		},
 		{
