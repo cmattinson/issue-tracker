@@ -1,9 +1,19 @@
 import { issueTypesTable } from "@/db/schema";
-import { db } from "@/index";
+import { BaseRepositoryImpl } from "@/modules/base-repository";
+import type { SearchIssueType } from "./dto";
 import type { SelectIssueType } from "./schema";
 
-export const IssueTypeRepository = {
-	async list(): Promise<SelectIssueType[]> {
-		return await db.select().from(issueTypesTable);
-	},
-};
+// Create a minimal InsertType since issue-types likely don't need inserts
+type InsertIssueType = Omit<SelectIssueType, "id" | "createdAt" | "updatedAt">;
+
+class IssueTypeRepository extends BaseRepositoryImpl<
+	InsertIssueType,
+	SelectIssueType,
+	SearchIssueType
+> {
+	constructor() {
+		super(issueTypesTable);
+	}
+}
+
+export const issueTypeRepository = new IssueTypeRepository();

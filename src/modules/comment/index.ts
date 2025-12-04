@@ -1,10 +1,10 @@
 import { Elysia, t } from "elysia";
 import { CommentWithUserDto, SearchCommentDto } from "./dto";
 import { InsertCommentSchema, SelectCommentSchema } from "./schema";
-import { CommentService } from "./service";
+import { commentService } from "./service";
 
 export const comment = new Elysia({ prefix: "/comments" })
-	.get("/", async ({ query }) => await CommentService.list(query), {
+	.get("/", async ({ query }) => await commentService.list(query), {
 		query: SearchCommentDto,
 		response: t.Array(SelectCommentSchema),
 		detail: {
@@ -12,7 +12,7 @@ export const comment = new Elysia({ prefix: "/comments" })
 			tags: ["Comments"],
 		},
 	})
-	.post("/", async ({ body }) => await CommentService.create(body), {
+	.post("/", async ({ body }) => await commentService.create(body), {
 		body: InsertCommentSchema,
 		response: { 201: SelectCommentSchema },
 		detail: {
@@ -23,7 +23,7 @@ export const comment = new Elysia({ prefix: "/comments" })
 	.get(
 		"/issue/:issueId",
 		async ({ params }) => {
-			return await CommentService.findByIssueId(params.issueId);
+			return await commentService.findByIssueId(params.issueId);
 		},
 		{
 			params: t.Object({ issueId: t.String() }),
@@ -34,7 +34,7 @@ export const comment = new Elysia({ prefix: "/comments" })
 	.get(
 		"/:id",
 		async ({ params }) => {
-			return await CommentService.find(params.id);
+			return await commentService.find(params.id);
 		},
 		{
 			params: t.Object({ id: t.Integer() }),

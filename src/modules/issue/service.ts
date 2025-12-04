@@ -1,25 +1,31 @@
-import type { IssueWithUser, NormalizedIssue, SearchIssue } from "./dto";
-import { IssueRepository } from "./repository.ts";
+import { BaseServiceImpl } from "@/modules/base-service";
+import type { DenormalizedIssue, IssueWithUser, SearchIssue } from "./dto";
+import { issueRepository } from "./repository.ts";
 import type { InsertIssue, SelectIssue } from "./schema";
 
-export const IssueService = {
-	async create(data: InsertIssue): Promise<SelectIssue> {
-		return await IssueRepository.create(data);
-	},
-
-	async find(id: string): Promise<SelectIssue | null> {
-		return await IssueRepository.find(id);
-	},
-
-	async list(query: SearchIssue): Promise<SelectIssue[]> {
-		return await IssueRepository.list(query);
-	},
+class IssueService extends BaseServiceImpl<
+	InsertIssue,
+	SelectIssue,
+	SearchIssue
+> {
+	constructor() {
+		super(issueRepository);
+	}
 
 	async assignedIssues(): Promise<IssueWithUser[]> {
-		return await IssueRepository.assignedIssues();
-	},
+		return await issueRepository.assignedIssues();
+	}
 
-	async normalizedIssues(): Promise<NormalizedIssue[]> {
-		return await IssueRepository.normalizedIssues();
-	},
-};
+	async denormalizedIssues(): Promise<DenormalizedIssue[]> {
+		return await issueRepository.denormalizedIssues();
+	}
+
+	async updateStatus(
+		id: string,
+		issueStatusId: number,
+	): Promise<SelectIssue | null> {
+		return await issueRepository.updateStatus(id, issueStatusId);
+	}
+}
+
+export const issueService = new IssueService();

@@ -1,16 +1,22 @@
-import { ProjectRepository } from "./repository.ts";
+import { BaseServiceImpl } from "@/modules/base-service";
+import { issueRepository } from "../issue/repository";
+import type { SelectIssue } from "../issue/schema";
+import type { SearchProject } from "./dto";
+import { projectRepository } from "./repository.ts";
 import type { InsertProject, SelectProject } from "./schema";
 
-export const ProjectService = {
-	async create(data: InsertProject): Promise<SelectProject> {
-		return await ProjectRepository.create(data);
-	},
+class ProjectService extends BaseServiceImpl<
+	InsertProject,
+	SelectProject,
+	SearchProject
+> {
+	constructor() {
+		super(projectRepository);
+	}
 
-	async find(id: number): Promise<SelectProject | null> {
-		return await ProjectRepository.find(id);
-	},
+	async getIssues(projectId: number): Promise<SelectIssue[]> {
+		return await issueRepository.findByProject(projectId);
+	}
+}
 
-	async list(): Promise<SelectProject[]> {
-		return await ProjectRepository.list();
-	},
-};
+export const projectService = new ProjectService();

@@ -1,11 +1,13 @@
 import { Elysia, t } from "elysia";
-import { SelectIssueTypeSchema, type SelectIssueType } from "./schema";
-import { IssueTypeService } from "./service";
+import { SearchIssueTypeDto } from "./dto";
+import { SelectIssueTypeSchema } from "./schema";
+import { issueTypeService } from "./service";
 
 export const issueType = new Elysia({ prefix: "/issue-types" }).get(
 	"/",
-	async () => await IssueTypeService.list(),
+	async ({ query }) => await issueTypeService.list(query),
 	{
+		query: SearchIssueTypeDto,
 		response: t.Array(SelectIssueTypeSchema),
 		detail: {
 			summary: "List all issue types",

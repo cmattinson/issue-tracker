@@ -1,9 +1,16 @@
-import { issueTypesTable } from "@/db/schema";
-import type { SelectIssueType } from "./schema";
-import { IssueTypeRepository } from "./repository";
+import { BaseServiceImpl } from "@/modules/base-service";
+import type { SearchIssueType } from "./dto";
+import { issueTypeRepository } from "./repository";
+import type { InsertIssueType, SelectIssueType } from "./schema";
 
-export const IssueTypeService = {
-	async list(): Promise<SelectIssueType[]> {
-		return await IssueTypeRepository.list();
-	},
-};
+class IssueTypeService extends BaseServiceImpl<
+	InsertIssueType,
+	SelectIssueType,
+	SearchIssueType
+> {
+	constructor() {
+		super(issueTypeRepository);
+	}
+}
+
+export const issueTypeService = new IssueTypeService();

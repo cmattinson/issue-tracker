@@ -1,5 +1,6 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import {
+	issuePrioritiesTable,
 	issueStatusTable,
 	issuesTable,
 	issueTypesTable,
@@ -7,7 +8,8 @@ import {
 	usersTable,
 } from "@/db/schema";
 import { db } from "@/index";
-import type { IssueWithUser, NormalizedIssue, SearchIssue } from "./dto";
+import { BaseRepositoryImpl } from "@/modules/base-repository";
+import type { DenormalizedIssue, IssueWithUser, SearchIssue } from "./dto";
 import type { InsertIssue, SelectIssue } from "./schema";
 
 const generateIssueId = async (projectId: number): Promise<string> => {
@@ -39,26 +41,25 @@ const generateIssueId = async (projectId: number): Promise<string> => {
 	return `${project.key}-${nextNumber.toString().padStart(4, "0")}`;
 };
 
-export const IssueRepository = {
-	async create(data: InsertIssue): Promise<SelectIssue> {
+class IssueRepository extends BaseRepositoryImpl<
+	InsertIssue,
+	SelectIssue,
+	SearchIssue
+> {
+	constructor() {
+		super(issuesTable);
+	}
+
+	override async create(data: InsertIssue): Promise<SelectIssue> {
 		const id = await generateIssueId(data.projectId);
-		const [result] = await db
+		const result = await db
 			.insert(issuesTable)
 			.values({ ...data, id })
 			.returning();
-		return result as SelectIssue;
-	},
+		return (result as any[])[0] as SelectIssue;
+	}
 
-	async find(id: string): Promise<SelectIssue | null> {
-		const [row] = await db
-			.select()
-			.from(issuesTable)
-			.where(eq(issuesTable.id, id));
-
-		return row ?? null;
-	},
-
-	async list(query: SearchIssue): Promise<SelectIssue[]> {
+	override async list(query: SearchIssue): Promise<SelectIssue[]> {
 		const conditions = [];
 		if (query.userId) conditions.push(eq(issuesTable.userId, query.userId));
 		if (query.statusId)
@@ -71,8 +72,9 @@ export const IssueRepository = {
 			.from(issuesTable)
 			.where(filter)
 			.limit(10)
-			.offset((query.page ?? 0) * 10);
-	},
+			.offset((query.page ?? 0) * 10)
+			.orderBy(asc(issuesTable.id));
+	}
 
 	async assignedIssues(): Promise<IssueWithUser[]> {
 		return await db
@@ -90,22 +92,29 @@ export const IssueRepository = {
 			})
 			.from(issuesTable)
 			.innerJoin(usersTable, eq(issuesTable.userId, usersTable.id));
-	},
+	}
 
-	async normalizedIssues(): Promise<NormalizedIssue[]> {
+	async denormalizedIssues(): Promise<DenormalizedIssue[]> {
 		const rows = await db
 			.select({
+				id: issuesTable.id,
 				title: issuesTable.title,
 				description: issuesTable.description,
 				userId: usersTable.id,
 				userName: usersTable.name,
+				projectId: projectsTable.id,
+				projectName: projectsTable.name,
+				projectKey: projectsTable.key,
 				issueTypeId: issueTypesTable.id,
 				issueTypeName: issueTypesTable.name,
 				issueStatusId: issueStatusTable.id,
 				issueStatusName: issueStatusTable.name,
+				priorityId: issuePrioritiesTable.id,
+				priorityName: issuePrioritiesTable.name,
 			})
 			.from(issuesTable)
 			.leftJoin(usersTable, eq(issuesTable.userId, usersTable.id))
+			.innerJoin(projectsTable, eq(issuesTable.projectId, projectsTable.id))
 			.innerJoin(
 				issueTypesTable,
 				eq(issuesTable.issueTypeId, issueTypesTable.id),
@@ -113,7 +122,32 @@ export const IssueRepository = {
 			.innerJoin(
 				issueStatusTable,
 				eq(issuesTable.issueStatusId, issueStatusTable.id),
+			)
+			.innerJoin(
+				issuePrioritiesTable,
+				eq(issuesTable.priorityId, issuePrioritiesTable.id),
 			);
 		return rows;
-	},
-};
+	}
+
+	async findByProject(projectId: number): Promise<SelectIssue[]> {
+		return await db
+			.select()
+			.from(issuesTable)
+			.where(eq(issuesTable.projectId, projectId));
+	}
+
+	async updateStatus(
+		id: string,
+		issueStatusId: number,
+	): Promise<SelectIssue | null> {
+		const [result] = await db
+			.update(issuesTable)
+			.set({ issueStatusId })
+			.where(eq(issuesTable.id, id))
+			.returning();
+		return (result as SelectIssue) || null;
+	}
+}
+
+export const issueRepository = new IssueRepository();

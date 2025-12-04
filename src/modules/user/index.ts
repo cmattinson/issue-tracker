@@ -1,10 +1,12 @@
 import { Elysia, status, t } from "elysia";
 import { SelectIssueSchema } from "../issue/schema";
+import { SearchUserDto } from "./dto";
 import { type InsertUser, InsertUserSchema, SelectUserSchema } from "./schema";
-import { UserService } from "./service";
+import { userService } from "./service";
 
 export const user = new Elysia({ prefix: "/users" })
-	.get("/", async () => await UserService.list(), {
+	.get("/", async ({ query }) => await userService.list(query), {
+		query: SearchUserDto,
 		response: t.Array(SelectUserSchema),
 		detail: {
 			summary: "List all users",
@@ -13,7 +15,7 @@ export const user = new Elysia({ prefix: "/users" })
 	})
 	.post(
 		"/",
-		async ({ body }: { body: InsertUser }) => await UserService.create(body),
+		async ({ body }: { body: InsertUser }) => await userService.create(body),
 		{
 			body: InsertUserSchema,
 			response: { 201: SelectUserSchema },
@@ -26,7 +28,7 @@ export const user = new Elysia({ prefix: "/users" })
 	.get(
 		"/:id",
 		async ({ params }: { params: { id: number } }) => {
-			const user = await UserService.find(params.id);
+			const user = await userService.find(params.id);
 			return user ?? status(404, "User not found");
 		},
 		{
@@ -41,7 +43,7 @@ export const user = new Elysia({ prefix: "/users" })
 	.get(
 		"/:id/issues",
 		async ({ params }: { params: { id: number } }) =>
-			await UserService.getIssues(params.id),
+			await userService.getIssues(params.id),
 		{
 			params: t.Object({ id: t.Integer() }),
 			response: t.Array(SelectIssueSchema),

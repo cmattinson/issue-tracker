@@ -1,10 +1,11 @@
 import { Elysia, t } from "elysia";
-import { NormalizedIssueDto, SearchIssueDto } from "./dto";
+import { DenormalizedIssueDto, SearchIssueDto } from "./dto";
+import { UpdateIssueDto } from "./dto-update";
 import { InsertIssueSchema, SelectIssueSchema } from "./schema";
-import { IssueService } from "./service";
+import { issueService } from "./service";
 
 export const issue = new Elysia({ prefix: "/issues" })
-	.get("/", async ({ query }) => await IssueService.list(query), {
+	.get("/", async ({ query }) => await issueService.list(query), {
 		query: SearchIssueDto,
 		response: t.Array(SelectIssueSchema),
 		detail: {
@@ -12,7 +13,7 @@ export const issue = new Elysia({ prefix: "/issues" })
 			tags: ["Issues"],
 		},
 	})
-	.post("/", async ({ body }) => await IssueService.create(body), {
+	.post("/", async ({ body }) => await issueService.create(body), {
 		body: InsertIssueSchema,
 		response: { 201: SelectIssueSchema },
 		detail: {
@@ -20,21 +21,32 @@ export const issue = new Elysia({ prefix: "/issues" })
 			tags: ["Issues"],
 		},
 	})
-	.get("/normalized", async () => await IssueService.normalizedIssues(), {
-		response: t.Array(NormalizedIssueDto),
+	.get("/denormalized", async () => await issueService.denormalizedIssues(), {
+		response: t.Array(DenormalizedIssueDto),
 		detail: {
-			summary: "List all normalized issues",
+			summary: "List all denormalized issues",
 			tags: ["Issues"],
 		},
 	})
-	.get("/assigned", async () => await IssueService.assignedIssues())
-	.get(
-		"/:id",
-		async ({ params }) => {
-			return await IssueService.find(params.id);
+	.patch(
+		"/:id/status",
+		async ({ params, body }) => {
+			const result = await issueService.updateStatus(
+				params.id,
+				body.issueStatusId,
+			);
+			if (!result) {
+				throw new Error("Issue not found");
+			}
+			return result;
 		},
 		{
 			params: t.Object({ id: t.String() }),
-			detail: { summary: "Find an issue by ID", tags: ["Issues"] },
+			body: UpdateIssueDto,
+			response: SelectIssueSchema,
+			detail: {
+				summary: "Update issue status",
+				tags: ["Issues"],
+			},
 		},
 	);
