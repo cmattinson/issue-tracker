@@ -1,5 +1,6 @@
 import { IssueCard } from "public/components/IssueCard";
 import type { DenormalizedIssue } from "@/modules/issue/dto";
+import type { SelectIssueStatus } from "@/modules/issue-status/schema";
 import { useIssues } from "../hooks/issue/issues";
 import { useIssueStatuses } from "../hooks/issue/issue-statuses";
 import { useUpdateIssueStatus } from "../hooks/issue/update-issue-status";
@@ -13,7 +14,7 @@ export function IssueBoard() {
 		if (!issues || !statuses) return {};
 
 		return statuses.reduce(
-			(acc: Record<number, DenormalizedIssue[]>, status: any) => {
+			(acc: Record<number, DenormalizedIssue[]>, status: SelectIssueStatus) => {
 				acc[status.id] = issues.filter(
 					(issue: DenormalizedIssue) => issue.issueStatusId === status.id,
 				);
@@ -48,7 +49,10 @@ export function IssueBoard() {
 		e.stopPropagation();
 
 		const issueId = e.dataTransfer.getData("issueId");
-		const currentStatusId = parseInt(e.dataTransfer.getData("currentStatusId"));
+		const currentStatusId = Number.parseInt(
+			e.dataTransfer.getData("currentStatusId"),
+			10,
+		);
 
 		console.log(
 			"Dropping issue:",
@@ -60,14 +64,20 @@ export function IssueBoard() {
 		);
 
 		if (issueId && currentStatusId !== newStatusId) {
-			updateIssueStatus.mutate({ id: issueId, issueStatusId: newStatusId });
+			// Set userId to 1 when moving to "In Progress" (status ID 2)
+			const userId = newStatusId === 2 ? 1 : undefined;
+			updateIssueStatus.mutate({
+				id: issueId,
+				issueStatusId: newStatusId,
+				userId,
+			});
 		}
 	};
 
 	return (
 		<div className="p-6">
 			<div className="flex gap-4 overflow-x-auto">
-				{statuses?.map((status: any) => (
+				{statuses?.map((status: SelectIssueStatus) => (
 					<div key={status.id} className="flex-shrink-0 w-80">
 						{/* Column Header */}
 						<div className="flex items-center gap-2 mb-4 px-1">

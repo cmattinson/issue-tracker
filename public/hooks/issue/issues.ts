@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { DenormalizedIssue } from "../../src/modules/issue/dto";
+import type { DenormalizedIssue } from "@/modules/issue/dto";
 
 export const useIssues = () => {
 	return useQuery({

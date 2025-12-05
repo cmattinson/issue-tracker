@@ -7,16 +7,22 @@ export const useUpdateIssueStatus = () => {
 		mutationFn: async ({
 			id,
 			issueStatusId,
+			userId,
 		}: {
 			id: string;
 			issueStatusId: number;
+			userId?: number;
 		}) => {
+			const requestBody: any = { issueStatusId };
+			if (userId !== undefined) {
+				requestBody.userId = userId;
+			}
 			const res = await fetch(`/api/v1/issues/${id}/status`, {
 				method: "PATCH",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ issueStatusId }),
+				body: JSON.stringify(requestBody),
 			});
 
 			if (!res.ok) {
@@ -26,7 +32,6 @@ export const useUpdateIssueStatus = () => {
 			return res.json();
 		},
 		onSuccess: () => {
-			// Invalidate and refetch issues
 			queryClient.invalidateQueries({ queryKey: ["issues"] });
 		},
 	});

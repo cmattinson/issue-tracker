@@ -1,20 +1,26 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
       - "${PORT}:${PORT}"
+      - "6499:6499"
     environment:
       - PORT=${PORT}
       - NODE_ENV=${NODE_ENV}
       - DATABASE_URL=${DATABASE_URL}
     command: bun run docker:start
+    stop_grace_period: 0s
     develop:
       watch:
-        - action: sync
+        - action: sync+restart
           path: .
           target: /usr/src/app
           ignore:
             - node_modules/
+            - .git/
+            - bun.lock
         - action: rebuild
           path: package.json
     depends_on:
