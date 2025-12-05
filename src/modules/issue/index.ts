@@ -34,6 +34,7 @@ export const issue = new Elysia({ prefix: "/issues" })
 			const result = await issueService.updateStatus(
 				params.id,
 				body.issueStatusId,
+				body.userId,
 			);
 			if (!result) {
 				throw new Error("Issue not found");

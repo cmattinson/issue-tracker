@@ -1,16 +1,17 @@
 import { integer, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	id: integer().primaryKey().generatedByDefaultAsIdentity().notNull(),
 	createdAt: timestamp().defaultNow().notNull(),
 	updatedAt: timestamp(),
 	name: varchar({ length: 255 }).notNull(),
 	age: integer().notNull(),
 	email: varchar({ length: 255 }).notNull().unique(),
+	password: varchar({ length: 255 }).notNull(),
 });
 
 export const projectsTable = pgTable("projects", {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	id: integer().primaryKey().generatedByDefaultAsIdentity().notNull(),
 	createdAt: timestamp().defaultNow().notNull(),
 	updatedAt: timestamp(),
 	name: varchar({ length: 255 }).notNull(),
@@ -20,21 +21,21 @@ export const projectsTable = pgTable("projects", {
 });
 
 export const issueTypesTable = pgTable("issue_types", {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	id: integer().primaryKey().generatedByDefaultAsIdentity().notNull(),
 	createdAt: timestamp().defaultNow().notNull(),
 	updatedAt: timestamp(),
 	name: varchar({ length: 255 }).notNull().unique(),
 });
 
 export const issuePrioritiesTable = pgTable("issue_priorities", {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	id: integer().primaryKey().generatedByDefaultAsIdentity().notNull(),
 	createdAt: timestamp().defaultNow().notNull(),
 	updatedAt: timestamp(),
 	name: varchar({ length: 255 }).notNull().unique(),
 });
 
 export const issueStatusTable = pgTable("issue_statuses", {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	id: integer().primaryKey().generatedByDefaultAsIdentity().notNull(),
 	createdAt: timestamp().defaultNow().notNull(),
 	updatedAt: timestamp(),
 	name: varchar({ length: 255 }).notNull().unique(),
@@ -62,7 +63,7 @@ export const issuesTable = pgTable("issues", {
 });
 
 export const commentsTable = pgTable("comments", {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	id: integer().primaryKey().generatedByDefaultAsIdentity().notNull(),
 	createdAt: timestamp().defaultNow().notNull(),
 	updatedAt: timestamp(),
 	issueId: varchar({ length: 25 })

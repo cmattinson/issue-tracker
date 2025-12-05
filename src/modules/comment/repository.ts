@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { commentsTable, usersTable } from "@/db/schema";
-import { db } from "@/index";
+import { db } from "@/db";
 import { BaseRepositoryImpl } from "@/modules/base-repository";
 import type { CommentWithUser, SearchComment } from "./dto";
 import type { InsertComment, SelectComment } from "./schema";

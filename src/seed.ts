@@ -7,15 +7,23 @@ import {
 	projectsTable,
 	usersTable,
 } from "@/db/schema";
-import { db } from "@/index";
+import { db } from "@/db";
+import { hashPassword } from "@/utils/password";
 
 async function seed() {
-	console.log("🌱 Seeding database...");
+	console.log("Seeding database...");
+
+	const hashedPassword = await hashPassword("password123");
 
 	await Promise.all([
 		db
 			.insert(usersTable)
-			.values({ name: "Chris", age: 29, email: "chris@example.com" })
+			.values({
+				name: "Chris",
+				age: 29,
+				email: "chris@example.com",
+				password: hashedPassword,
+			})
 			.onConflictDoNothing({ target: usersTable.email }),
 		db
 			.insert(issuePrioritiesTable)
@@ -52,12 +60,38 @@ async function seed() {
 
 	await db
 		.insert(projectsTable)
-		.values({
-			name: "Some Project",
-			key: "SOME",
-			description: "This is a project",
-			ownerId: 1,
-		})
+		.values([
+			{
+				name: "Some Project",
+				key: "SOME",
+				description: "This is a project",
+				ownerId: 1,
+			},
+			{
+				name: "Web Application",
+				key: "WEB",
+				description: "Frontend web application project",
+				ownerId: 1,
+			},
+			{
+				name: "Mobile App",
+				key: "MOB",
+				description: "Mobile application development",
+				ownerId: 1,
+			},
+			{
+				name: "API Backend",
+				key: "API",
+				description: "RESTful API services",
+				ownerId: 1,
+			},
+			{
+				name: "Data Pipeline",
+				key: "DATA",
+				description: "ETL and data processing pipeline",
+				ownerId: 1,
+			},
+		])
 		.onConflictDoNothing({ target: projectsTable.key });
 
 	await db
@@ -105,7 +139,7 @@ async function seed() {
 		])
 		.onConflictDoNothing();
 
-	console.log("✅ Database seeded successfully");
+	console.log("Database seeded successfully...");
 }
 
 seed().catch(console.error);

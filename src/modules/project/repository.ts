@@ -1,6 +1,6 @@
 import { and, eq, ilike } from "drizzle-orm";
 import { projectsTable } from "@/db/schema";
-import { db } from "@/index";
+import { db } from "@/db";
 import { BaseRepositoryImpl } from "@/modules/base-repository";
 import type { SearchProject } from "./dto";
 import type { InsertProject, SelectProject } from "./schema";

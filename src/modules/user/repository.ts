@@ -1,6 +1,6 @@
 import { and, eq, ilike, type SQL } from "drizzle-orm";
 import { issuesTable, usersTable } from "@/db/schema";
-import { db } from "@/index.ts";
+import { db } from "@/db";
 import { BaseRepositoryImpl } from "@/modules/base-repository";
 import type { SelectIssue } from "../issue/schema";
 import type { SearchUser } from "./dto";

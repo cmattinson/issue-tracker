@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { eq } from "drizzle-orm";
+import { db } from "@/db";
 import { issuesTable, projectsTable } from "@/db/schema";
-import { db } from "@/index";
-import { IssueRepository } from "@/modules/issue/repository";
+import { issueRepository } from "@/modules/issue/repository";
 
 describe("generateIssueId", () => {
 	let testProjectId: number;
@@ -43,7 +43,7 @@ describe("generateIssueId", () => {
 			priorityId: 1,
 		};
 
-		const result = await IssueRepository.create(issueData);
+		const result = await issueRepository.create(issueData);
 		expect(result.id).toBe("TEST-0001");
 	});
 
@@ -68,7 +68,7 @@ describe("generateIssueId", () => {
 			priorityId: 1,
 		};
 
-		const result = await IssueRepository.create(issueData);
+		const result = await issueRepository.create(issueData);
 		expect(result.id).toBe("TEST-0002");
 	});
 
@@ -113,7 +113,7 @@ describe("generateIssueId", () => {
 			priorityId: 1,
 		};
 
-		const result = await IssueRepository.create(issueData);
+		const result = await issueRepository.create(issueData);
 		expect(result.id).toBe("TEST-0004");
 	});
 
@@ -149,7 +149,7 @@ describe("generateIssueId", () => {
 			priorityId: 1,
 		};
 
-		const result = await IssueRepository.create(issueData);
+		const result = await issueRepository.create(issueData);
 		expect(result.id).toBe("TEST-0006");
 	});
 });

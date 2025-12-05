@@ -1,5 +1,5 @@
 import { and, eq, type SQL } from "drizzle-orm";
-import { db } from "@/index";
+import { db } from "@/db";
 
 export interface BaseRepository<InsertType, SelectType, SearchType> {
 	create(data: InsertType): Promise<SelectType>;

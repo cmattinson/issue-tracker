@@ -7,10 +7,11 @@ import {
 	projectsTable,
 	usersTable,
 } from "@/db/schema";
-import { db } from "@/index";
+import { db } from "@/db";
 import { BaseRepositoryImpl } from "@/modules/base-repository";
 import type { DenormalizedIssue, IssueWithUser, SearchIssue } from "./dto";
 import type { InsertIssue, SelectIssue } from "./schema";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 const generateIssueId = async (projectId: number): Promise<string> => {
 	const [project] = await db
@@ -140,10 +141,15 @@ class IssueRepository extends BaseRepositoryImpl<
 	async updateStatus(
 		id: string,
 		issueStatusId: number,
+		userId?: number,
 	): Promise<SelectIssue | null> {
+		const updateData: any = { issueStatusId };
+		if (userId !== undefined) {
+			updateData.userId = userId;
+		}
 		const [result] = await db
 			.update(issuesTable)
-			.set({ issueStatusId })
+			.set(updateData)
 			.where(eq(issuesTable.id, id))
 			.returning();
 		return (result as SelectIssue) || null;
