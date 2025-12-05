@@ -5,6 +5,7 @@ import { projectsTable } from "../../db/schema";
 const BaseProjectSchema = createInsertSchema(projectsTable);
 
 export const InsertProjectSchema = t.Omit(BaseProjectSchema, [
+	"id",
 	"createdAt",
 	"updatedAt",
 ]);

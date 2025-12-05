@@ -9,7 +9,7 @@ class IssueTypeService extends BaseServiceImpl<
 	SearchIssueType
 > {
 	constructor() {
-		super(issueTypeRepository);
+		super(issueTypeRepository, "Issue Type");
 	}
 }
 

@@ -11,7 +11,7 @@ class ProjectService extends BaseServiceImpl<
 	SearchProject
 > {
 	constructor() {
-		super(projectRepository);
+		super(projectRepository, "Project");
 	}
 
 	async getIssues(projectId: number): Promise<SelectIssue[]> {
